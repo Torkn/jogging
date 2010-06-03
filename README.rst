@@ -2,7 +2,7 @@ Jogging is a thin wrapper around Python's logging functionality to make Django l
 
 With Jogging, you can control the destination, format, and verbosity of logs with fine granularity. Configuring module-level logging is just as easy as configuring logging for specific functions.
 
-To use it, you add a few configurations to settings.py, import Jogging's log functions instead of Python's, and then log away like you normally do. 
+To use it, you add a few configurations to settings.py, import Jogging's log functions instead of Python's, and then log away like you normally do.
 
 Python's logging module does all the heavy lifting. As a result, you can use Jogging to configure logging for code that already exists. And great care has been taken to make sure logging's power isn't hidden away behind abstractions.
 
@@ -87,13 +87,13 @@ Advanced
         # we'll also have it log everything to the database
         'myapp1.views.super_important_view': {
             'handlers': [
-                { 'handler': StreamHandler(), 'level': logging.CRITICAL, 
+                { 'handler': StreamHandler(), 'level': logging.CRITICAL,
                     'format': "%(asctime)-15s %(source): %(message)s %(foo)s" },
                 { 'handler': DatabaseHandler(), 'level': logging.DEBUG },
             ]
         },
     
-        # this is the name of a logger that a third party app already logs to. 
+        # this is the name of a logger that a third party app already logs to.
         # you can configure it just like the others, without breaking anything.
         'simple_example': {
             'handler': StreamHandler(),
@@ -161,7 +161,7 @@ Jogging requires a dictionary, ``settings.LOGGING``, that defines the loggers yo
 ===========
 Resources
 ===========
-List of handlers in Python's logging module: 
+List of handlers in Python's logging module:
 http://docs.python.org/library/logging.html#handler-objects
 
 Format specifiers for Python's logging module:

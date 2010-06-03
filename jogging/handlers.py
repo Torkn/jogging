@@ -18,12 +18,12 @@ class MockHandler(logging.Handler):
 class DatabaseHandler(logging.Handler):
     def emit(self, record):
         from jogging.models import Log
-        
+
         if hasattr(record, 'source'):
             source = record.source
         else:
             source = record.name
-        
+
         try:
             Log.objects.create(source=source, level=record.levelname, msg=record.msg, host=HOST)
         except:
@@ -33,7 +33,7 @@ class DatabaseHandler(logging.Handler):
 class EmailHandler(logging.Handler):
     def __init__(self, from_email=None, recipient_spec=None, fail_silently=False, auth_user=None, auth_password=None, *args, **kwargs):
         logging.Handler.__init__(self, *args, **kwargs)
-        self.recipient_spec = recipient_spec or () 
+        self.recipient_spec = recipient_spec or ()
         self.from_email = from_email
         self.auth_user = auth_user
         self.auth_password = auth_password
@@ -41,7 +41,7 @@ class EmailHandler(logging.Handler):
 
     def emit(self, record):
         from django.conf import settings
-        from django.core.mail import send_mail 
+        from django.core.mail import send_mail
 
         if hasattr(record, 'source'):
             source = record.source

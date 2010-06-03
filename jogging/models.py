@@ -58,7 +58,7 @@ def jogging_init():
                     "A logger in settings.LOGGING doesn't have its log level set. " +
                     "Either set a level on that logger, or set GLOBAL_LOG_LEVEL.")
 
-            handlers = [] 
+            handlers = []
             if 'handler' in properties:
                 handlers = [properties['handler']]
             elif 'handlers' in properties:
