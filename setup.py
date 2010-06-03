@@ -11,5 +11,6 @@ setup(name='jogging',
       packages = ['jogging',],
       package_dir = {'jogging':'jogging'},
       test_suite='tests.main',
+      zip_safe=False,
      )
 
