@@ -1,4 +1,5 @@
 import logging as py_logging
+from django.conf import settings
 import sys
 
 class LoggingWrapper(object):
@@ -31,7 +32,7 @@ class LoggingWrapper(object):
         self.log('critical', msg, caller, *args, **kwargs)
 
     def exception(self, msg='', exception=None, request=None, *args, **kwargs):
-        import traceback, sys
+        import traceback
         from django.utils.encoding import iri_to_uri
 
         if exception:
@@ -47,7 +48,7 @@ class LoggingWrapper(object):
             absolute_uri = request.build_absolute_uri()
             try:
                 request_repr = repr(request)
-            except:
+            except StandardError:
                 request_repr = "Request repr() unavailable"
             message = """Absolute URI: %s
 ========================================
@@ -62,23 +63,23 @@ Request:
         self.log('error', message, source, *args, **kwargs)
 
     def log(self, level, msg, source=None, *args, **kwargs):
-        import sys
-
         if not source:
             source = sys._getframe(1).f_globals['__name__']
 
         logger = self.get_logger(source)
         kwargs.update(source=source)
 
-        if sys.version_info >= (2, 5):
-            logger.log(level=self.LOGGING_LEVELS[level], msg=msg, extra=kwargs, *args)
-        else:
-            logger.log(level=self.LOGGING_LEVELS[level], msg=msg, *args, **kwargs)
+        # Don't log unless the level is higher than the threshold for this source
+        log_level = self.LOGGING_LEVELS[level]
+        log_threshold = self.get_level(source)
+        if log_level >= log_threshold:
+            if sys.version_info >= (2, 5):
+                logger.log(level=self.LOGGING_LEVELS[level], msg=msg, extra=kwargs, *args)
+            else:
+                logger.log(level=self.LOGGING_LEVELS[level], msg=msg, *args, **kwargs)
 
     def get_logger(self, source):
-        from django.conf import settings
-
-        chunks = source.split('.')
+        chunks = (source or '').split('.')
         modules = ['.'.join(chunks[0:n]) for n in range(1, len(chunks) + 1)]
         modules.reverse()
 
@@ -88,5 +89,33 @@ Request:
                     return py_logging.getLogger(source)
 
         return py_logging.getLogger('') # root logger
+
+    def get_level(self, source):
+        """
+        Returns the log level for a given source
+
+        if settings.LOGGING exists, returns the matching level
+        if settings.GLOBAL_LOG_LEVEL exists, returns that
+        if settings.DEBUG set, return DEBUG
+        otherwise, returns WARNING
+        """
+
+        chunks = (source or '').split('.')
+        modules = ['.'.join(chunks[0:n]) for n in range(1, len(chunks) + 1)]
+        modules.reverse()
+
+        if hasattr(settings, 'LOGGING'):
+            for source in modules:
+                if source in settings.LOGGING:
+                    if level in settings.LOGGING[source]:
+                        return settings.LOGGING[source]['level']
+
+        if hasattr(settings, 'GLOBAL_LOG_LEVEL'):
+            return settings.GLOBAL_LOG_LEVEL
+
+        if settings.get('DEBUG', True):
+            return py_logger.DEBUG
+        else:
+            return py_logger.WARNING
 
 logging = LoggingWrapper()

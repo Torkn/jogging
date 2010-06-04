@@ -1,5 +1,6 @@
 import datetime, logging
 import os
+import sys
 
 HOST = os.uname()[1]
 
@@ -26,9 +27,9 @@ class DatabaseHandler(logging.Handler):
 
         try:
             Log.objects.create(source=source, level=record.levelname, msg=record.msg, host=HOST)
-        except:
+        except StandardError, e:
             # squelching exceptions sucks, but 500-ing because of a logging error sucks more
-            pass
+            print >> sys.stdout, "DatabaseHandlerException: %s" % e
 
 class EmailHandler(logging.Handler):
     def __init__(self, from_email=None, recipient_spec=None, fail_silently=False, auth_user=None, auth_password=None, *args, **kwargs):
