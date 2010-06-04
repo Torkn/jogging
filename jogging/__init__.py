@@ -34,14 +34,17 @@ class LoggingWrapper(object):
 
     def exception(self, msg='', exception=None, request=None, *args, **kwargs):
         import traceback
-        from django.utils.encoding import iri_to_uri
 
         # Can 404 errors can be ignored?
-        if not getattr(settings, 'GLOBAL_LOG_IGNORE_404', False) and isinstance(exception, Http404):
+        if getattr(settings, 'GLOBAL_LOG_IGNORE_404', False) and isinstance(exception, Http404):
             return
 
         if exception:
             source, exc, trbk = sys.exc_info()
+            try:
+                source = source.__name__
+            except:
+                source = str(source)
             tb = ''.join(traceback.format_exception(source, exc, trbk))
         else:
             source = 'UnspecifiedException'
@@ -67,7 +70,9 @@ Request:
 
         self.log('error', message, source, *args, **kwargs)
 
+
     def log(self, level, msg, source=None, *args, **kwargs):
+
         if not source:
             source = sys._getframe(1).f_globals['__name__']
 
@@ -77,6 +82,7 @@ Request:
         # Don't log unless the level is higher than the threshold for this source
         log_level = self.LOGGING_LEVELS[level]
         log_threshold = self.get_level(source)
+
         if log_level >= log_threshold:
             if sys.version_info >= (2, 5):
                 logger.log(level=self.LOGGING_LEVELS[level], msg=msg, extra=kwargs, *args)
@@ -84,7 +90,7 @@ Request:
                 logger.log(level=self.LOGGING_LEVELS[level], msg=msg, *args, **kwargs)
 
     def get_logger(self, source):
-        chunks = (source or '').split('.')
+        chunks = str(source).split('.')
         modules = ['default'] + ['.'.join(chunks[0:n]) for n in range(1, len(chunks) + 1)]
         modules.reverse()
 
@@ -105,7 +111,7 @@ Request:
         otherwise, returns WARNING
         """
 
-        chunks = (source or '').split('.')
+        chunks = str(source).split('.')
         modules = ['default'] + ['.'.join(chunks[0:n]) for n in range(1, len(chunks) + 1)]
         modules.reverse()
 
