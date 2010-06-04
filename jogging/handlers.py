@@ -1,8 +1,10 @@
-import datetime, logging
+import datetime
+import logging
 import os
 import sys
+import socket
 
-HOST = os.uname()[1]
+HOST = socket.gethostname()
 
 class NullHandler(logging.Handler):
     def emit(self, record):
