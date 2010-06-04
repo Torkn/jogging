@@ -1,5 +1,6 @@
 import logging as py_logging
 from django.conf import settings
+from django.htto import Http404
 import sys
 
 class LoggingWrapper(object):
@@ -35,16 +36,20 @@ class LoggingWrapper(object):
         import traceback
         from django.utils.encoding import iri_to_uri
 
+        # Can 404 errors can be ignored?
+        if not getattr(settings, 'GLOBAL_LOG_IGNORE_404', False) and isinstance(exception, Http404):
+            return
+
         if exception:
-            tb = ''.join(traceback.format_exception(sys.exc_info()[0],
-                sys.exc_info()[1], sys.exc_info()[2]))
+            source, exc, trbk = sys.exc_info()
+            tb = ''.join(traceback.format_exception(source, exc, trbk))
         else:
+            source = 'UnspecifiedException'
             tb = ''
 
         if request:
-            location = '%s://%s%s' % (request.is_secure() and 'https' or 'http',
-                                      request.get_host(), request.path)
-            source = iri_to_uri(location)
+            #location = '%s://%s%s' % (request.is_secure() and 'https' or 'http',
+            #                          request.get_host(), request.path)
             absolute_uri = request.build_absolute_uri()
             try:
                 request_repr = repr(request)
