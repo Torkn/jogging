@@ -80,7 +80,7 @@ Request:
 
     def get_logger(self, source):
         chunks = (source or '').split('.')
-        modules = ['.'.join(chunks[0:n]) for n in range(1, len(chunks) + 1)]
+        modules = ['default'] + ['.'.join(chunks[0:n]) for n in range(1, len(chunks) + 1)]
         modules.reverse()
 
         if hasattr(settings, 'LOGGING'):
@@ -101,7 +101,7 @@ Request:
         """
 
         chunks = (source or '').split('.')
-        modules = ['.'.join(chunks[0:n]) for n in range(1, len(chunks) + 1)]
+        modules = ['default'] + ['.'.join(chunks[0:n]) for n in range(1, len(chunks) + 1)]
         modules.reverse()
 
         if hasattr(settings, 'LOGGING'):
