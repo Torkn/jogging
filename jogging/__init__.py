@@ -1,6 +1,6 @@
 import logging as py_logging
 from django.conf import settings
-from django.htto import Http404
+from django.http import Http404
 import sys
 
 class LoggingWrapper(object):
