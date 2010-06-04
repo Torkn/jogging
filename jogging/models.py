@@ -18,12 +18,17 @@ class LogSummary(models.Model):
 
     class Meta:
         unique_together = ('level', 'source', 'host')
+        verbose_name = 'Log Summary'
+        verbose_name_plural = 'Log Summaries'
 
     def abbrev_msg(self, maxlen=500):
         if len(self.msg) > maxlen:
             return u'%s ...' % self.msg[:maxlen]
         return self.msg
-    abbrev_msg.short_description = u'abbreviated msg'
+    abbrev_msg.short_description = u'Most recent msg'
+
+    def __unicode__(self):
+        return u"<SUMMARY %s: %s %s %s>" % (self.level, self.host, self.source, self.abbrev_msg(maxlen=20))
 
 class Log(models.Model):
     "A log message, used by jogging's DatabaseHandler"
@@ -42,6 +47,9 @@ class Log(models.Model):
             return u'%s ...' % self.msg[:maxlen]
         return self.msg
     abbrev_msg.short_description = u'abbreviated msg'
+
+    def __unicode__(self):
+        return u"<%s: %s %s %s>" % (self.level, self.host, self.source, self.abbrev_msg(maxlen=20))
 
 ## Signals
 
