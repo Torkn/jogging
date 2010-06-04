@@ -77,7 +77,7 @@ Request:
             source = sys._getframe(1).f_globals['__name__']
 
         logger = self.get_logger(source)
-        kwargs.update(source=source)
+        kwargs.update({'source':source})
 
         # Don't log unless the level is higher than the threshold for this source
         log_level = self.LOGGING_LEVELS[level]
