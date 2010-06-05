@@ -128,9 +128,14 @@ def jogging_init():
 
             add_handlers(logger, handlers)
 
-    elif hasattr(settings, 'GLOBAL_LOG_LEVEL') and hasattr(settings, 'GLOBAL_LOG_HANDLERS'):
+    elif hasattr(settings, 'GLOBAL_LOG_HANDLERS'):
         logger = py_logging.getLogger('')
-        logger.setLevel(settings.GLOBAL_LOG_LEVEL)
+        if settings.get('DEBUG', False):
+            default_level = logging.WARNING
+        else:
+            default_level = logging.DEBUG
+        default_level = settings.get('GLOBAL_LOG_LEVEL', default_level)
+        logger.setLevel(default_level)
         handlers = settings.GLOBAL_LOG_HANDLERS
 
         add_handlers(logger, handlers)

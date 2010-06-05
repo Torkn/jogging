@@ -38,6 +38,8 @@ Basic
 
 Everything INFO and above will get logged to the database.
 
+If GLOBAL_LOG_LEVEL is not specified, it defaults to logging.WARNING if settings.DEBUG is False, otherwise logging.DEBUG
+
 Note that Jogging doesn't wrap Handlers; they're the same as in logging. This means you can do everything logging.Handler lets you do, and then throw the Handler objects into Jogging.
 
 
@@ -119,6 +121,7 @@ Usage
 
 Remember ``%(foo)s`` from the ``'format'`` property in the Advanced configuration above? It will be populated with ``"bar"`` in the debug call.
 
+Messages that are below the jogging logging level for this location will be discarded silently.
 
 ======================
 Custom Handlers
@@ -154,9 +157,38 @@ Much inspiration was taken from `Django's logging proposal <http://groups.google
 Jogging requires a dictionary, ``settings.LOGGING``, that defines the loggers you want to control through Jogging (by name). Here is how Jogging works:
 
 1. All loggers are created on server startup from ``settings.LOGGING`` (the init code is in models.py, for lack of a better place). Handlers are added to the loggers as defined, and levels are set.
-2. When your app calls Jogging's log functions, the calling function is matched against the logger names in ``settings.LOGGING`` and the most specific logger is chosen. For example, say ``myproj.myapp.views.func()`` is the caller; it will match loggers named ``myproj.myapp.views.func``, ``myproj.myapp.views``, ``myproj.myapp``, and ``myproj``. The first (most specific) one that matches will be chosen.
-3. ``log()`` is called on the chosen logger, and Python's logging module takes over from here.
+2. When your app calls Jogging's log functions, the calling function is matched against the logger names in ``settings.LOGGING`` and the most specific logger is chosen. For example, say ``myproj.myapp.views.func()`` is the caller; it will match loggers named ``myproj.myapp.views.func``, ``myproj.myapp.views``, ``myproj.myapp``, ``myproj`` and finally ``default``. The first (most specific) one that matches will be chosen.  Calls made via calling the logging module directly default to ``root`` as the source.
+3. If no match has been found in settings.LOGGING, then it looks for settings.GLOBAL_LOG_LEVEL and settings.GLOBAL_LOG_HANDLERS
+4. If no match has been found, GLOBAL_LOG_LEVEL defaults to WARNING if settings.DEBUG = False, otherwise DEBUG
+5. ``log()`` is called on the chosen logger, and Python's logging module takes over from here.
 
+==========
+Exceptions
+==========
+
+If settings.GLOBAL_LOG_IGNORE_404 (default=False) is True, then Http404 exceptions are not logged.
+
+The logging behaviour for any exception can be adjusted using settings.LOGGING . For example, to log Http404 exceptions to stderr instead of the database::
+
+    import logging
+
+    LOGGING = {
+        # exceptions can be referred to by name
+        'Http404': {
+            'handler': logging.StreamHandler(),
+            'level': logging.ERROR,
+            }
+	}
+
+All exceptions are logged at level logging.ERROR.
+
+=====
+Admin
+=====
+
+The Admin interface exposes 2 tables: ``Logs`` and ``Log Summaries``.  When using the ``DatabaseHandler``, logs are written to the Log table.  Logs with the same (Host, Level, Source) tuple share a common ``Log Summary`` record, which also records earliest and latest match together with the total number or logs recorded and the most recent message.
+
+Deleting a ``Log Summary`` record will delete all related ``Log`` records.
 
 ===========
 Resources
