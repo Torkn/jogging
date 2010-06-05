@@ -3,6 +3,7 @@ import logging
 import os
 import sys
 import socket
+from jogging import LOGGING_LEVELS
 
 HOST = socket.gethostname()
 
@@ -28,7 +29,10 @@ class DatabaseHandler(logging.Handler):
             source = record.name
 
         try:
-            Log.objects.create(source=source, level=record.levelname, msg=record.msg, host=HOST)
+            Log.objects.create(source=source,
+                               level=LOGGING_LEVELS[record.levelname],
+                               msg=record.msg,
+                               host=HOST)
         except StandardError, e:
             # squelching exceptions sucks, but 500-ing because of a logging error sucks more
             print >> sys.stdout, "DatabaseHandlerException: %s" % e

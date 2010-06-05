@@ -3,34 +3,35 @@ from django.conf import settings
 from django.http import Http404
 import sys
 
-class LoggingWrapper(object):
-    LOGGING_LEVELS = {
-        'debug': py_logging.DEBUG,
-        'info': py_logging.INFO,
-        'warning': py_logging.WARNING,
-        'error': py_logging.ERROR,
-        'critical': py_logging.CRITICAL
+LOGGING_LEVELS = {
+    'DEBUG': py_logging.DEBUG,
+    'INFO': py_logging.INFO,
+    'WARNING': py_logging.WARNING,
+    'ERROR': py_logging.ERROR,
+    'CRITICAL': py_logging.CRITICAL
     }
+
+class LoggingWrapper(object):
 
     def debug(self, msg, *args, **kwargs):
         caller = sys._getframe(1).f_globals['__name__']
-        self.log('debug', msg, caller, *args, **kwargs)
+        self.log('DEBUG', msg, caller, *args, **kwargs)
 
     def info(self, msg, *args, **kwargs):
         caller = sys._getframe(1).f_globals['__name__']
-        self.log('info', msg, caller, *args, **kwargs)
+        self.log('INFO', msg, caller, *args, **kwargs)
 
     def warning(self, msg, *args, **kwargs):
         caller = sys._getframe(1).f_globals['__name__']
-        self.log('warning', msg, caller, *args, **kwargs)
+        self.log('WARNING', msg, caller, *args, **kwargs)
 
     def error(self, msg, *args, **kwargs):
         caller = sys._getframe(1).f_globals['__name__']
-        self.log('error', msg, caller, *args, **kwargs)
+        self.log('ERROR', msg, caller, *args, **kwargs)
 
     def critical(self, msg, *args, **kwargs):
         caller = sys._getframe(1).f_globals['__name__']
-        self.log('critical', msg, caller, *args, **kwargs)
+        self.log('CRITICAL', msg, caller, *args, **kwargs)
 
     def exception(self, msg='', exception=None, request=None, *args, **kwargs):
         import traceback
@@ -68,7 +69,7 @@ Request:
             source = 'Exception'
             message = "%s%s" % (msg, tb)
 
-        self.log('error', message, source, *args, **kwargs)
+        self.log('ERROR', message, source, *args, **kwargs)
 
 
     def log(self, level, msg, source=None, *args, **kwargs):
@@ -80,14 +81,14 @@ Request:
         kwargs.update({'source':source})
 
         # Don't log unless the level is higher than the threshold for this source
-        log_level = self.LOGGING_LEVELS[level]
+        log_level = LOGGING_LEVELS[level]
         log_threshold = self.get_level(source)
 
         if log_level >= log_threshold:
             if sys.version_info >= (2, 5):
-                logger.log(level=self.LOGGING_LEVELS[level], msg=msg, extra=kwargs, *args)
+                logger.log(level=LOGGING_LEVELS[level], msg=msg, extra=kwargs, *args)
             else:
-                logger.log(level=self.LOGGING_LEVELS[level], msg=msg, *args, **kwargs)
+                logger.log(level=LOGGING_LEVELS[level], msg=msg, *args, **kwargs)
 
     def get_logger(self, source):
         chunks = str(source).split('.')
