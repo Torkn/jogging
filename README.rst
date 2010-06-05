@@ -186,9 +186,20 @@ All exceptions are logged at level logging.ERROR.
 Admin
 =====
 
-The Admin interface exposes 2 tables: ``Logs`` and ``Log Summaries``.  When using the ``DatabaseHandler``, logs are written to the Log table.  Logs with the same (Host, Level, Source) tuple share a common ``Log Summary`` record, which also records earliest and latest match together with the total number or logs recorded and the most recent message.
+The Admin interface exposes 2 tables: ``Logs`` and ``Log Summaries``.  When using the ``DatabaseHandler``, logs are written to the Log table.  Logs with the same (Host, Level, Source, Headline) tuple share a common ``Log Summary`` record, which also records earliest and latest match together with the total number or logs recorded and the most recent message.  Headline is the first 60 characters of the first line of the message.
 
 Deleting a ``Log Summary`` record will delete all related ``Log`` records.
+
+Setting ``summary_only`` to True will keep the summary record, but all subsequent log records will be discarded.  This is useful for logging the frequency of common events.  The entire msg of the most recent log is available in ``Most recent msg``.  For example::
+
+    views.py
+    ========
+
+    def SomeView(request):
+        logging.info("Entering SomeView\nrequest: %s" % repr(request))
+
+
+In this example, all such ``Log`` messages will share a single ``LogSummary`` record, since the changing data does not occur in the first line of the message.  In the ``LogSummary`` record, the field ``Hits`` will count the number of messages, and the entire most recent message can be read in ``Most recent msg``.  If ``Summary only`` is set, the actual log messages will not accumulate in the ``Log`` table.
 
 ===========
 Resources
