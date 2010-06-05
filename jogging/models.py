@@ -9,6 +9,7 @@ from django.utils.hashcompat import md5_constructor
 from jogging import LOGGING_LEVELS
 
 LEVEL_CHOICES = [(val, name) for (name, val) in LOGGING_LEVELS.items()]
+LEVEL_CHOICES_DICT = dict(LEVEL_CHOICES)
 HEADLINE_LENGTH = 60
 
 class LogSummary(models.Model):
@@ -36,7 +37,7 @@ class LogSummary(models.Model):
     abbrev_msg.short_description = u'Most recent msg'
 
     def __unicode__(self):
-        return u"<LOGSUMMARY %s %s %s %s>" % (self.level, self.host, self.source, self.headline)
+        return u"<LOGSUMMARY %s %s %s %s>" % (LEVEL_CHOICES_DICT.get(self.level, 'UNKNOWN'), self.host, self.source, self.headline)
 
 class Log(models.Model):
     "A log message, used by jogging's DatabaseHandler"
@@ -68,7 +69,7 @@ class Log(models.Model):
         return checksum
 
     def __unicode__(self):
-        return u"<LOG %s %s %s %s>" % (self.level, self.host, self.source, self.get_headline())
+        return u"<LOG %s %s %s %s>" % (LEVEL_CHOICES_DICT.get(self.level, 'UNKNOWN'), self.host, self.source, self.get_headline())
 
 ## Signals
 
@@ -151,7 +152,7 @@ def jogging_init():
 
             add_handlers(logger, handlers)
 
-    elif hasattr(settings, 'GLOBAL_LOG_HANDLERS'):
+    if hasattr(settings, 'GLOBAL_LOG_HANDLERS'):
         logger = py_logging.getLogger('')
         if hasattr(settings, 'GLOBAL_LOG_LEVEL'):
             default_level = settings.GLOBAL_LOG_LEVEL
