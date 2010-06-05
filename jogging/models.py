@@ -9,6 +9,7 @@ from django.utils.hashcompat import md5_constructor
 from jogging import LOGGING_LEVELS
 
 LEVEL_CHOICES = [(val, name) for (name, val) in LOGGING_LEVELS.items()]
+HEADLINE_LENGTH = 60
 
 class LogSummary(models.Model):
     "A summary of the log messages"
@@ -19,7 +20,7 @@ class LogSummary(models.Model):
     earliest = models.DateTimeField(default=datetime.datetime.now, db_index=True)
     latest = models.DateTimeField(default=datetime.datetime.now, db_index=True)
     hits = models.IntegerField(default=0, null=False)
-    headline = models.CharField(max_length=40, default='', blank=True)
+    headline = models.CharField(max_length=HEADLINE_LENGTH, default='', blank=True)
     latest_msg = models.TextField()
     summary_only = models.BooleanField(default=False)
 
@@ -27,7 +28,6 @@ class LogSummary(models.Model):
         verbose_name = 'Log Summary'
         verbose_name_plural = 'Log Summaries'
         ordering = ['-latest']
-        db_table = 'temp_jogging_summary' ############# TEMPORARY - delete for new installations
 
     def abbrev_msg(self, maxlen=500):
         if len(self.latest_msg) > maxlen:
@@ -49,8 +49,6 @@ class Log(models.Model):
 
     class Meta:
         ordering = ['-datetime']
-        db_table = 'temp_jogging_log' ############# TEMPORARY - delete for new installations
-        pass
 
     def abbrev_msg(self, maxlen=500):
         if len(self.msg) > maxlen:
@@ -59,7 +57,7 @@ class Log(models.Model):
     abbrev_msg.short_description = u'abbreviated msg'
 
     def get_headline(self):
-        return self.msg.split('\n')[0][:40]
+        return self.msg.split('\n')[0][:HEADLINE_LENGTH]
 
     def get_checksum(self):
         checksum = md5_constructor(str(self.level))
