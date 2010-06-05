@@ -5,7 +5,7 @@ import logging
 from django.test import TestCase as DjangoTestCase
 from django.conf import settings
 
-from jogging.models import Log, jogging_init
+from jogging.models import Log, jogging_init, LEVEL_CHOICES_DICT
 
 class DatabaseHandlerTestCase(DjangoTestCase):
 
@@ -41,20 +41,41 @@ class DatabaseHandlerTestCase(DjangoTestCase):
             l.delete()
 
     def test_basic(self):
+        # Log a message and look for a new record in Log
         logger = logging.getLogger("database_test")
         logger.info("My Logging Test")
         log_obj = Log.objects.get(pk=1)
-        self.assertEquals(log_obj.level, "INFO")
+        self.assertEquals(LEVEL_CHOICES_DICT[log_obj.level], "INFO")
         self.assertEquals(log_obj.source, "database_test")
         self.assertEquals(log_obj.msg, "My Logging Test")
         self.assertTrue(log_obj.host)
+
+        # There should be a summary too
+        summary_obj = log_obj.summary
+        self.assertEquals(LEVEL_CHOICES_DICT[summary_obj.level], "INFO")
+        self.assertEquals(summary_obj.source, "database_test")
+        self.assertEquals(summary_obj.headline, "My Logging Test")
+        self.assertEquals(summary_obj.latest_msg, "My Logging Test")
+        self.assertEquals(summary_obj.hits, 1)
+        self.assertTrue(summary_obj.host)
+
+        # Log a second time, with the same headline (first line)
+        logger.info("My Logging Test\nSecond log")
+        log_obj2 = Log.objects.get(pk=2)
+        summary_obj2 = log_obj2.summary
+
+        # Boths logs should share the same summary
+        self.assertEquals(summary_obj2.hits, 2)
+        self.assertEquals(summary_obj2.latest_msg, "My Logging Test\nSecond log")
+        self.assertEquals(summary_obj.checksum, summary_obj2.checksum)
+        self.assertEquals(log_obj2.msg, "My Logging Test\nSecond log")
 
     def test_multi(self):
         logger = logging.getLogger("multi_test")
         logger.info("My Logging Test")
 
         log_obj = Log.objects.get(pk=1)
-        self.assertEquals(log_obj.level, "INFO")
+        self.assertEquals(LEVEL_CHOICES_DICT[log_obj.level], "INFO")
         self.assertEquals(log_obj.source, "multi_test")
         self.assertEquals(log_obj.msg, "My Logging Test")
         self.assertTrue(log_obj.host)
