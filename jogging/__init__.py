@@ -124,7 +124,7 @@ Request:
         if hasattr(settings, 'GLOBAL_LOG_LEVEL'):
             return settings.GLOBAL_LOG_LEVEL
 
-        if settings.get('DEBUG', True):
+        if hasattr(settings, 'DEBUG') and settings.DEBUG:
             return py_logger.DEBUG
         else:
             return py_logger.WARNING
