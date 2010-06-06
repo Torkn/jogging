@@ -30,14 +30,25 @@ class LogSummary(models.Model):
         verbose_name_plural = 'Log Summaries'
         ordering = ['-latest']
 
+    def __unicode__(self):
+        return u"<LOGSUMMARY %s %s %s %s>" % (LEVEL_CHOICES_DICT.get(self.level, 'UNKNOWN'), self.host, self.source, self.headline)
+
+    ## Admin methods
+
     def abbrev_msg(self, maxlen=500):
         if len(self.latest_msg) > maxlen:
             return u'%s ...' % self.latest_msg[:maxlen]
         return self.latest_msg
     abbrev_msg.short_description = u'Most recent msg'
 
-    def __unicode__(self):
-        return u"<LOGSUMMARY %s %s %s %s>" % (LEVEL_CHOICES_DICT.get(self.level, 'UNKNOWN'), self.host, self.source, self.headline)
+    def latest_fmt(self):
+        return self.latest.strftime('%Y%m%d\nT%H%m')
+    latest_fmt.short_description = 'Latest'
+
+    def earliest_fmt(self):
+        return self.earliest.strftime('%Y%m%d\nT%H%m')
+    earliest_fmt.short_description = 'Earliest'
+
 
 class Log(models.Model):
     "A log message, used by jogging's DatabaseHandler"
@@ -51,11 +62,22 @@ class Log(models.Model):
     class Meta:
         ordering = ['-datetime']
 
+    def __unicode__(self):
+        return u"<LOG %s %s %s %s>" % (LEVEL_CHOICES_DICT.get(self.level, 'UNKNOWN'), self.host, self.source, self.get_headline())
+
+    ## Admin methods
+
     def abbrev_msg(self, maxlen=500):
         if len(self.msg) > maxlen:
             return u'%s ...' % self.msg[:maxlen]
         return self.msg
     abbrev_msg.short_description = u'abbreviated msg'
+
+    def datetime_fmt(self):
+        return self.datetime.strftime('%Y%m%d\nT%H%m')
+    datetime_fmt.short_description = 'Time'
+
+    ## Methods for creating LogSummary
 
     def get_headline(self):
         return self.msg.split('\n')[0][:HEADLINE_LENGTH]
@@ -68,8 +90,6 @@ class Log(models.Model):
         checksum = checksum.hexdigest()
         return checksum
 
-    def __unicode__(self):
-        return u"<LOG %s %s %s %s>" % (LEVEL_CHOICES_DICT.get(self.level, 'UNKNOWN'), self.host, self.source, self.get_headline())
 
 ## Signals
 
