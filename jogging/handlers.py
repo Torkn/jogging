@@ -35,7 +35,7 @@ class DatabaseHandler(logging.Handler):
                                host=HOST)
         except StandardError, e:
             # squelching exceptions sucks, but 500-ing because of a logging error sucks more
-            print >> sys.stdout, "DatabaseHandlerException: %s" % e
+            print >> sys.stderr, "DatabaseHandlerException: %s" % e
 
 class EmailHandler(logging.Handler):
     def __init__(self, from_email=None, recipient_spec=None, fail_silently=False, auth_user=None, auth_password=None, *args, **kwargs):
