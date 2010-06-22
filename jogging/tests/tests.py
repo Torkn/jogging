@@ -44,7 +44,7 @@ class DatabaseHandlerTestCase(DjangoTestCase):
         # Log a message and look for a new record in Log
         logger = logging.getLogger("database_test")
         logger.info("My Logging Test")
-        log_obj = Log.objects.get(pk=1)
+        log_obj = Log.objects.latest()
         self.assertEquals(LEVEL_CHOICES_DICT[log_obj.level], "INFO")
         self.assertEquals(log_obj.source, "database_test")
         self.assertEquals(log_obj.msg, "My Logging Test")
@@ -61,7 +61,7 @@ class DatabaseHandlerTestCase(DjangoTestCase):
 
         # Log a second time, with the same headline (first line)
         logger.info("My Logging Test\nSecond log")
-        log_obj2 = Log.objects.get(pk=2)
+        log_obj2 = Log.objects.latest()
         summary_obj2 = log_obj2.summary
 
         # Boths logs should share the same summary
@@ -74,7 +74,7 @@ class DatabaseHandlerTestCase(DjangoTestCase):
         logger = logging.getLogger("multi_test")
         logger.info("My Logging Test")
 
-        log_obj = Log.objects.get(pk=1)
+        log_obj = Log.objects.latest()
         self.assertEquals(LEVEL_CHOICES_DICT[log_obj.level], "INFO")
         self.assertEquals(log_obj.source, "multi_test")
         self.assertEquals(log_obj.msg, "My Logging Test")
@@ -130,6 +130,7 @@ class DictHandlerTestCase(DjangoTestCase):
         self.assertEquals(log_obj.msg, "My Logging Test")
 
 class GlobalExceptionTestCase(DjangoTestCase):
+    urls = 'jogging.tests.urls'
 
     def setUp(self):
         from jogging.handlers import DatabaseHandler, MockHandler
@@ -137,7 +138,7 @@ class GlobalExceptionTestCase(DjangoTestCase):
 
         settings.LOGGING = {}
         settings.GLOBAL_LOG_HANDLERS = [MockHandler()]
-
+        settings.GLOBAL_LOG_LEVEL = logging.DEBUG
         jogging_init()
 
     def tearDown(self):

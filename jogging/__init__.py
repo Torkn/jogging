@@ -119,8 +119,11 @@ Request:
         if hasattr(settings, 'LOGGING'):
             for source in modules:
                 if source in settings.LOGGING:
-                    if level in settings.LOGGING[source]:
+                    if 'level' in settings.LOGGING[source]:
                         return settings.LOGGING[source]['level']
+                    elif 'handlers' in settings.LOGGING[source]:
+                        # There could be several handlers with different levels
+                        return py_logger.DEBUG
 
         if hasattr(settings, 'GLOBAL_LOG_LEVEL'):
             return settings.GLOBAL_LOG_LEVEL

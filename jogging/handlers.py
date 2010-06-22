@@ -29,13 +29,16 @@ class DatabaseHandler(logging.Handler):
             source = record.name
 
         try:
-            Log.objects.create(source=source,
-                               level=LOGGING_LEVELS[record.levelname],
-                               msg=record.msg,
-                               host=HOST)
+            if LOGGING_LEVELS[record.levelname] >= self.level:
+                Log.objects.create(source=source,
+                                   level=LOGGING_LEVELS[record.levelname],
+                                   msg=record.msg,
+                                   host=HOST)
         except StandardError, e:
-            # squelching exceptions sucks, but 500-ing because of a logging error sucks more
-            print >> sys.stderr, "DatabaseHandlerException: %s" % e
+            # logging handlers should call this method if an error is encountered
+            # during an emit() call.  If raiseExceptions is false, exceptions
+            # are silently ignored.  Defaults to printing traceback to stderr
+            self.handleError(record)
 
 class EmailHandler(logging.Handler):
     def __init__(self, from_email=None, recipient_spec=None, fail_silently=False, auth_user=None, auth_password=None, *args, **kwargs):

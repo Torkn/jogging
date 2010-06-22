@@ -1,5 +1,4 @@
 import datetime
-
 import logging as py_logging
 
 from django.db import models
@@ -73,6 +72,9 @@ class Log(models.Model):
         return self.msg
     abbrev_msg.short_description = u'abbreviated msg'
 
+    class Meta:
+        get_latest_by = 'datetime'
+
     def datetime_fmt(self):
         return self.datetime.strftime('%Y%m%d\nT%H%m')
     datetime_fmt.short_description = 'Time'
@@ -144,7 +146,7 @@ def jogging_init():
                 logger.addHandler(handler)
 
 
-    if hasattr(settings, 'LOGGING'):
+    if hasattr(settings, 'LOGGING') and settings.LOGGING:
         for module, properties in settings.LOGGING.items():
             logger = py_logging.getLogger(module)
 
@@ -152,15 +154,10 @@ def jogging_init():
                 logger.setLevel(properties['level'])
             elif hasattr(settings, 'GLOBAL_LOG_LEVEL'):
                 logger.setLevel(settings.GLOBAL_LOG_LEVEL)
-            elif 'handlers' in properties:
-                # set the effective log level of this loger to the lowest so
-                # that logging decisions will always be passed to the handlers
-                logger.setLevel(1)
-                pass
+            elif hasattr(settings, 'DEBUG') and settings.DEBUG:
+                logger.setLevel(logging.DEBUG)
             else:
-                raise ImproperlyConfigured(
-                    "A logger in settings.LOGGING doesn't have its log level set. " +
-                    "Either set a level on that logger, or set GLOBAL_LOG_LEVEL.")
+                logger.setLevel(logging.WARNING)
 
             handlers = []
             if 'handler' in properties:
