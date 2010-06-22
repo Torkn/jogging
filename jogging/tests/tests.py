@@ -16,7 +16,7 @@ class DatabaseHandlerTestCase(DjangoTestCase):
         settings.LOGGING = {
             'database_test': {
                 'handler': DatabaseHandler(),
-                'level': logging.DEBUG,
+                'level': logging.INFO,
             },
             'multi_test': {
                 'handlers': [
@@ -69,6 +69,17 @@ class DatabaseHandlerTestCase(DjangoTestCase):
         self.assertEquals(summary_obj2.latest_msg, "My Logging Test\nSecond log")
         self.assertEquals(summary_obj.checksum, summary_obj2.checksum)
         self.assertEquals(log_obj2.msg, "My Logging Test\nSecond log")
+
+        # But a "DEBUG" log is below the logging level, so should be ignored
+        logger.debug("Third Log")
+        log_obj3 = Log.objects.latest()
+        self.assertEquals(log_obj3.msg, "My Logging Test\nSecond log")
+
+        # A "WARNING" log is above the logging level, so should be written
+        logger.warning("Fourth Log")
+        log_obj4 = Log.objects.latest()
+        self.assertEquals(log_obj4.msg, "Fourth Log")
+
 
     def test_multi(self):
         logger = logging.getLogger("multi_test")
