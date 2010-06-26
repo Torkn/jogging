@@ -3,6 +3,8 @@ from django.conf import settings
 from django.http import Http404
 import sys
 
+VERSION = (0, 2, 2)
+
 LOGGING_LEVELS = {
     'DEBUG': py_logging.DEBUG,
     'INFO': py_logging.INFO,
