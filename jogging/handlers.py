@@ -29,11 +29,10 @@ class DatabaseHandler(logging.Handler):
             source = record.name
 
         try:
-            if LOGGING_LEVELS[record.levelname] >= self.level:
-                Log.objects.create(source=source,
-                                   level=LOGGING_LEVELS[record.levelname],
-                                   msg=record.msg,
-                                   host=HOST)
+            Log.objects.create(source=source,
+                               level=LOGGING_LEVELS[record.levelname],
+                               msg=record.msg,
+                               host=HOST)
         except StandardError, e:
             # logging handlers should call this method if an error is encountered
             # during an emit() call.  If raiseExceptions is false, exceptions
