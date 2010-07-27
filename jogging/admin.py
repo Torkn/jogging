@@ -14,7 +14,7 @@ class LogSummaryAdmin(admin.ModelAdmin):
     model = LogSummary
     list_display = ['latest_fmt', 'earliest_fmt', 'hits', 'host', 'level', 'source', 'headline', 'abbrev_msg', 'summary_only']
     list_editable = ['summary_only']
-    search_fields = ['source', 'msg', 'host']
+    search_fields = ['source', 'latest_msg', 'host']
     list_filter = ['level', 'source', 'host']
 
 admin.site.register(Log, LogAdmin)
