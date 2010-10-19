@@ -21,8 +21,10 @@ def main():
         'django.contrib.contenttypes',
         APP_MODULE,
     )
-    global_settings.DATABASE_ENGINE = "sqlite3"
-    global_settings.DATABASE_NAME = ":memory:"
+    global_settings.DATABASES = {'default': {
+        'ENGINE' : 'django.db.backends.sqlite3',
+        'NAME' : ':memory:',
+        }}
     global_settings.ROOT_URLCONF = 'jogging.tests.urls'
 
     global_settings.MIDDLEWARE_CLASSES = (
@@ -36,7 +38,7 @@ def main():
     from jogging.handlers import DatabaseHandler, MockHandler
     global_settings.GLOBAL_LOG_HANDLERS = []
     global_settings.GLOBAL_LOG_LEVEL = logging.INFO
-    global_settings.LOGGING = {}
+    global_settings.JLOGGING = {}
 
     from django.test.utils import get_runner
     test_runner = get_runner(global_settings)

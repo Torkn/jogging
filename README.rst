@@ -52,7 +52,7 @@ Intermediate
     from logging import StreamHandler
     import logging
 
-    LOGGING = {
+    JLOGGING = {
         # all logs from myapp1 go to the database
         'myapp1': {
             'handler': DatabaseHandler(), # an initialized handler object
@@ -78,7 +78,7 @@ Advanced
     from logging import StreamHandler, FileHandler
     import logging
 
-    LOGGING = {
+    JLOGGING = {
         # all logs from myapp1 go to the database
         'myapp1': {
             'handler': DatabaseHandler(),
@@ -154,11 +154,11 @@ Implementation
 ======================
 Much inspiration was taken from `Django's logging proposal <http://groups.google.com/group/django-developers/browse_thread/thread/8551ecdb7412ab22>`_.
 
-Jogging requires a dictionary, ``settings.LOGGING``, that defines the loggers you want to control through Jogging (by name). Here is how Jogging works:
+Jogging requires a dictionary, ``settings.JLOGGING``, that defines the loggers you want to control through Jogging (by name). Here is how Jogging works:
 
-1. All loggers are created on server startup from ``settings.LOGGING`` (the init code is in models.py, for lack of a better place). Handlers are added to the loggers as defined, and levels are set.
-2. When your app calls Jogging's log functions, the calling function is matched against the logger names in ``settings.LOGGING`` and the most specific logger is chosen. For example, say ``myproj.myapp.views.func()`` is the caller; it will match loggers named ``myproj.myapp.views.func``, ``myproj.myapp.views``, ``myproj.myapp``, ``myproj`` and finally ``default``. The first (most specific) one that matches will be chosen.  Calls made via calling the logging module directly default to ``root`` as the source.
-3. If no match has been found in settings.LOGGING, then it looks for settings.GLOBAL_LOG_LEVEL and settings.GLOBAL_LOG_HANDLERS
+1. All loggers are created on server startup from ``settings.JLOGGING`` (the init code is in models.py, for lack of a better place). Handlers are added to the loggers as defined, and levels are set.
+2. When your app calls Jogging's log functions, the calling function is matched against the logger names in ``settings.JLOGGING`` and the most specific logger is chosen. For example, say ``myproj.myapp.views.func()`` is the caller; it will match loggers named ``myproj.myapp.views.func``, ``myproj.myapp.views``, ``myproj.myapp``, ``myproj`` and finally ``default``. The first (most specific) one that matches will be chosen.  Calls made via calling the logging module directly default to ``root`` as the source.
+3. If no match has been found in settings.JLOGGING, then it looks for settings.GLOBAL_LOG_LEVEL and settings.GLOBAL_LOG_HANDLERS
 4. If no match has been found, GLOBAL_LOG_LEVEL defaults to WARNING if settings.DEBUG = False, otherwise DEBUG
 5. ``log()`` is called on the chosen logger, and Python's logging module takes over from here.
 
@@ -168,11 +168,11 @@ Exceptions
 
 If settings.GLOBAL_LOG_IGNORE_404 (default=False) is True, then Http404 exceptions are not logged.
 
-The logging behaviour for any exception can be adjusted using settings.LOGGING . For example, to log Http404 exceptions to stderr instead of the database::
+The logging behaviour for any exception can be adjusted using settings.JLOGGING . For example, to log Http404 exceptions to stderr instead of the database::
 
     import logging
 
-    LOGGING = {
+    JLOGGING = {
         # exceptions can be referred to by name
         'Http404': {
             'handler': logging.StreamHandler(),

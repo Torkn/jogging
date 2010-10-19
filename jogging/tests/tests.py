@@ -1,10 +1,11 @@
 #:coding=utf8:
 
-import logging
-
-from django.test import TestCase as DjangoTestCase
 from django.conf import settings
 
+settings.LOGGING_CONFIG = None # Disable Python 2.7 style logging configuration
+
+from django.test import TestCase as DjangoTestCase
+import logging
 from jogging.models import Log, jogging_init, LEVEL_CHOICES_DICT
 
 class DatabaseHandlerTestCase(DjangoTestCase):
@@ -13,9 +14,9 @@ class DatabaseHandlerTestCase(DjangoTestCase):
         from jogging.handlers import DatabaseHandler, MockHandler
         import logging
 
-        self.LOGGING = getattr(settings, 'LOGGING', None)
+        self.JLOGGING = getattr(settings, 'JLOGGING', None)
 
-        settings.LOGGING = {
+        settings.JLOGGING = {
             'database_test': {
                 'handler': DatabaseHandler(),
                 'level': logging.INFO,
@@ -42,8 +43,8 @@ class DatabaseHandlerTestCase(DjangoTestCase):
         for l in Log.objects.all():
             l.delete()
 
-        if self.LOGGING:
-            settings.LOGGING = self.LOGGING
+        if self.JLOGGING:
+            settings.JLOGGING = self.JLOGGING
         jogging_init()
 
     def test_basic(self):
@@ -97,7 +98,7 @@ class DatabaseHandlerTestCase(DjangoTestCase):
         self.assertEquals(log_obj.msg, "My Logging Test")
         self.assertTrue(log_obj.host)
 
-        log_obj = settings.LOGGING["multi_test"]["handlers"][1]["handler"].msgs[0]
+        log_obj = settings.JLOGGING["multi_test"]["handlers"][1]["handler"].msgs[0]
         self.assertEquals(log_obj.levelname, "INFO")
         self.assertEquals(log_obj.name, "multi_test")
         self.assertEquals(log_obj.msg, "My Logging Test")
@@ -108,9 +109,9 @@ class DictHandlerTestCase(DjangoTestCase):
         from jogging.handlers import MockHandler
         import logging
 
-        self.LOGGING = getattr(settings, 'LOGGING', None)
+        self.JLOGGING = getattr(settings, 'JLOGGING', None)
 
-        settings.LOGGING = {
+        settings.JLOGGING = {
             'dict_handler_test': {
                 'handlers': [
                     { 'handler': MockHandler(), 'level': logging.ERROR },
@@ -133,14 +134,14 @@ class DictHandlerTestCase(DjangoTestCase):
         for l in Log.objects.all():
             l.delete()
 
-        if self.LOGGING:
-            settings.LOGGING = self.LOGGING
+        if self.JLOGGING:
+            settings.JLOGGING = self.JLOGGING
         jogging_init()
 
     def test_basic(self):
         logger = logging.getLogger("dict_handler_test")
-        error_handler = settings.LOGGING["dict_handler_test"]["handlers"][0]["handler"]
-        info_handler = settings.LOGGING["dict_handler_test"]["handlers"][1]["handler"]
+        error_handler = settings.JLOGGING["dict_handler_test"]["handlers"][0]["handler"]
+        info_handler = settings.JLOGGING["dict_handler_test"]["handlers"][1]["handler"]
 
 
         logger.info("My Logging Test")
@@ -159,7 +160,7 @@ class GlobalExceptionTestCase(DjangoTestCase):
         from jogging.handlers import DatabaseHandler, MockHandler
         import logging
 
-        self.LOGGING = getattr(settings, 'LOGGING', None)
+        self.JLOGGING = getattr(settings, 'JLOGGING', None)
         self.GLOBAL_LOG_HANDLERS = getattr(settings, 'GLOBAL_LOG_HANDLERS', None)
         self.GLOBAL_LOG_LEVEL = getattr(settings, 'GLOBAL_LOG_LEVEL', None)
 
@@ -167,7 +168,7 @@ class GlobalExceptionTestCase(DjangoTestCase):
         for logger in loggers:
             logger.handlers = []
 
-        settings.LOGGING = {}
+        settings.JLOGGING = {}
         settings.GLOBAL_LOG_HANDLERS = [MockHandler()]
         settings.GLOBAL_LOG_LEVEL = logging.DEBUG
         jogging_init()
@@ -184,8 +185,8 @@ class GlobalExceptionTestCase(DjangoTestCase):
         for l in Log.objects.all():
             l.delete()
 
-        if self.LOGGING:
-            settings.LOGGING = self.LOGGING
+        if self.JLOGGING:
+            settings.JLOGGING = self.JLOGGING
         if self.GLOBAL_LOG_HANDLERS:
             settings.GLOBAL_LOG_HANDLERS = self.GLOBAL_LOG_HANDLERS
         if self.GLOBAL_LOG_LEVEL:

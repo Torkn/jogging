@@ -97,9 +97,9 @@ Request:
         modules = ['default'] + ['.'.join(chunks[0:n]) for n in range(1, len(chunks) + 1)]
         modules.reverse()
 
-        if hasattr(settings, 'LOGGING'):
+        if hasattr(settings, 'JLOGGING'):
             for source in modules:
-                if source in settings.LOGGING:
+                if source in settings.JLOGGING:
                     return py_logging.getLogger(source)
 
         return py_logging.getLogger('') # root logger
@@ -108,7 +108,7 @@ Request:
         """
         Returns the log level for a given source
 
-        if settings.LOGGING exists, returns the matching level
+        if settings.JLOGGING exists, returns the matching level
         if settings.GLOBAL_LOG_LEVEL exists, returns that
         if settings.DEBUG set, return DEBUG
         otherwise, returns WARNING
@@ -118,12 +118,12 @@ Request:
         modules = ['default'] + ['.'.join(chunks[0:n]) for n in range(1, len(chunks) + 1)]
         modules.reverse()
 
-        if hasattr(settings, 'LOGGING'):
+        if hasattr(settings, 'JLOGGING'):
             for source in modules:
-                if source in settings.LOGGING:
-                    if 'level' in settings.LOGGING[source]:
-                        return settings.LOGGING[source]['level']
-                    elif 'handlers' in settings.LOGGING[source]:
+                if source in settings.JLOGGING:
+                    if 'level' in settings.JLOGGING[source]:
+                        return settings.JLOGGING[source]['level']
+                    elif 'handlers' in settings.JLOGGING[source]:
                         # There could be several handlers with different levels
                         return py_logger.DEBUG
 

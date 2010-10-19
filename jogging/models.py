@@ -155,8 +155,8 @@ def jogging_init():
                 handler.setLevel(default_level)
                 logger.addHandler(handler)
 
-    if hasattr(settings, 'LOGGING') and settings.LOGGING:
-        for module, properties in settings.LOGGING.items():
+    if hasattr(settings, 'JLOGGING') and settings.JLOGGING:
+        for module, properties in settings.JLOGGING.items():
             logger = py_logging.getLogger(module)
 
             if 'level' in properties:
